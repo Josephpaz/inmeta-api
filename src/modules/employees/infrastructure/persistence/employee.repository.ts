@@ -1,7 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Employee } from '../../domain/employee.entity';
+import { DuplicateEmailException } from '../../domain/exceptions/duplicate-email.exception';
 import {
   EmployeeRepository,
   FindManyEmployeesParams,
@@ -9,19 +11,32 @@ import {
 } from '../../domain/employee.repository.interface';
 import { EmployeeMapper } from './employee.mapper';
 
+const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
+
 @Injectable()
 export class PrismaEmployeeRepository implements EmployeeRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(employee: Employee): Promise<Employee> {
-    const employeePrisma = await this.prisma.employee.create({
-      data: {
-        id: randomUUID(),
-        ...EmployeeMapper.toPersistence(employee),
-      },
-    });
+    try {
+      const employeePrisma = await this.prisma.employee.create({
+        data: {
+          id: randomUUID(),
+          ...EmployeeMapper.toPersistence(employee),
+        },
+      });
 
-    return EmployeeMapper.toDomain(employeePrisma);
+      return EmployeeMapper.toDomain(employeePrisma);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === UNIQUE_CONSTRAINT_VIOLATION
+      ) {
+        throw new DuplicateEmailException(employee.email);
+      }
+
+      throw error;
+    }
   }
 
   async delete(employee: Employee): Promise<void> {
