@@ -1,5 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import {
+  ApiGoneResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -16,7 +17,10 @@ export class GetEmployeeController {
   @Get(':id')
   @ApiOperation({ summary: 'Get an employee by id' })
   @ApiOkResponse({ description: 'Employee found.', type: EmployeeDto })
-  @ApiNotFoundResponse({ description: 'Employee not found.' })
+  @ApiNotFoundResponse({ description: 'Employee was never registered.' })
+  @ApiGoneResponse({
+    description: 'Employee was registered but is now inactive (soft deleted).',
+  })
   async handle(@Param('id') id: string): Promise<EmployeeDto> {
     const employee = await this.getEmployeeService.execute(id);
     return EmployeeDto.fromDomain(employee);

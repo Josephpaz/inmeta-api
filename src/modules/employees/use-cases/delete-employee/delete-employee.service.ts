@@ -1,22 +1,19 @@
-import { GoneException, Injectable, NotFoundException } from '@nestjs/common';
-import { Employee } from '../../domain/employee.entity';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { IEmployeeRepository } from '../../domain/employee.repository.interface';
 
 @Injectable()
-export class GetEmployeeService {
+export class DeleteEmployeeService {
   constructor(private readonly employeeRepository: IEmployeeRepository) {}
 
-  async execute(id: string): Promise<Employee> {
+  async execute(id: string): Promise<void> {
     const employee = await this.employeeRepository.findById(id);
 
     if (!employee) {
       throw new NotFoundException(`Employee with id "${id}" not found.`);
     }
 
-    if (employee.isDeleted) {
-      throw new GoneException(`Employee with id "${id}" was removed.`);
-    }
+    employee.softDelete();
 
-    return employee;
+    await this.employeeRepository.delete(employee);
   }
 }
