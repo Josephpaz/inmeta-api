@@ -14,8 +14,12 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
+    "paths": {
+      "src/*": ["src/*"]
+    },
     "incremental": true,
     "skipLibCheck": true,
+    "types": ["node", "jest"],
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noUnusedLocals": true,
