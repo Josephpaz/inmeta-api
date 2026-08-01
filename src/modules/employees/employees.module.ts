@@ -9,6 +9,8 @@ import { GetEmployeeController } from './use-cases/get-employee/get-employee.con
 import { GetEmployeeService } from './use-cases/get-employee/get-employee.service';
 import { GetEmployeesController } from './use-cases/get-employees/get-employees.controller';
 import { GetEmployeesService } from './use-cases/get-employees/get-employees.service';
+import { RestoreEmployeeController } from './use-cases/restore-employee/restore-employee.controller';
+import { RestoreEmployeeService } from './use-cases/restore-employee/restore-employee.service';
 
 @Module({
   controllers: [
@@ -16,12 +18,14 @@ import { GetEmployeesService } from './use-cases/get-employees/get-employees.ser
     GetEmployeesController,
     GetEmployeeController,
     DeleteEmployeeController,
+    RestoreEmployeeController,
   ],
   providers: [
     CreateEmployeeService,
     GetEmployeesService,
     GetEmployeeService,
     DeleteEmployeeService,
+    RestoreEmployeeService,
     {
       provide: IEmployeeRepository,
       useClass: EmployeeRepository,

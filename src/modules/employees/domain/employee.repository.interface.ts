@@ -15,6 +15,7 @@ export interface FindManyEmployeesResult {
 export abstract class IEmployeeRepository {
   abstract create(employee: Employee): Promise<Employee>;
   abstract delete(employee: Employee): Promise<void>;
+  abstract restore(employee: Employee): Promise<void>;
   abstract findById(id: string): Promise<Employee | null>;
   abstract findByEmail(email: string): Promise<Employee | null>;
   abstract findMany(

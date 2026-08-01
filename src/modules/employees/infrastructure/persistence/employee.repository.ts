@@ -46,6 +46,13 @@ export class EmployeeRepository implements IEmployeeRepository {
     });
   }
 
+  async restore(employee: Employee): Promise<void> {
+    await this.prisma.employee.update({
+      where: { id: employee.id },
+      data: { deletedAt: employee.deletedAt },
+    });
+  }
+
   async findById(id: string): Promise<Employee | null> {
     const employeePrisma = await this.prisma.employee.findUnique({
       where: { id },

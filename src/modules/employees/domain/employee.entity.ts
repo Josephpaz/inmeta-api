@@ -1,5 +1,6 @@
 import { Entity, EntityMetadata } from 'src/shared/core/entity';
 import { EmployeeAlreadyDeletedException } from './exceptions/employee-already-deleted.exception';
+import { EmployeeNotDeletedException } from './exceptions/employee-not-deleted.exception';
 import { InvalidEmployeeEmailException } from './exceptions/invalid-employee-email.exception';
 import { InvalidEmployeeNameException } from './exceptions/invalid-employee-name.exception';
 
@@ -58,5 +59,13 @@ export class Employee extends Entity<EmployeeProps> {
     }
 
     this._deletedAt = new Date();
+  }
+
+  restore(): void {
+    if (!this.isDeleted) {
+      throw new EmployeeNotDeletedException();
+    }
+
+    this._deletedAt = null;
   }
 }
