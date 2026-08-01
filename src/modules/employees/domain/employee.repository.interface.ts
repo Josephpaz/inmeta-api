@@ -12,7 +12,7 @@ export interface FindManyEmployeesResult {
   total: number;
 }
 
-export abstract class EmployeeRepository {
+export abstract class IEmployeeRepository {
   abstract create(employee: Employee): Promise<Employee>;
   abstract delete(employee: Employee): Promise<void>;
   abstract findById(id: string): Promise<Employee | null>;

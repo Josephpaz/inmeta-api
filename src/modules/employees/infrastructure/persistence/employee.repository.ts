@@ -5,7 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Employee } from '../../domain/employee.entity';
 import { DuplicateEmailException } from '../../domain/exceptions/duplicate-email.exception';
 import {
-  EmployeeRepository,
+  IEmployeeRepository,
   FindManyEmployeesParams,
   FindManyEmployeesResult,
 } from '../../domain/employee.repository.interface';
@@ -14,7 +14,7 @@ import { EmployeeMapper } from './employee.mapper';
 const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
 
 @Injectable()
-export class PrismaEmployeeRepository implements EmployeeRepository {
+export class EmployeeRepository implements IEmployeeRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(employee: Employee): Promise<Employee> {

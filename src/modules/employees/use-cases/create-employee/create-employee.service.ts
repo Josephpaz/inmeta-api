@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Employee } from '../../domain/employee.entity';
 import { DuplicateEmailException } from '../../domain/exceptions/duplicate-email.exception';
-import { EmployeeRepository } from '../../domain/employee.repository.interface';
+import { IEmployeeRepository } from '../../domain/employee.repository.interface';
 
 interface CreateEmployeeInput {
   name: string;
@@ -10,7 +10,7 @@ interface CreateEmployeeInput {
 
 @Injectable()
 export class CreateEmployeeService {
-  constructor(private readonly employeeRepository: EmployeeRepository) {}
+  constructor(private readonly employeeRepository: IEmployeeRepository) {}
 
   async execute(input: CreateEmployeeInput): Promise<Employee> {
     const existing = await this.employeeRepository.findByEmail(input.email);
