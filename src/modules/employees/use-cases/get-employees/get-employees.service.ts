@@ -16,6 +16,7 @@ export class GetEmployeesService {
   constructor(private readonly employeeRepository: IEmployeeRepository) {}
 
   async execute(input: GetEmployeesInput): Promise<FindManyEmployeesResult> {
-    return this.employeeRepository.findMany(input);
+    const result = await this.employeeRepository.findMany(input);
+    return result;
   }
 }

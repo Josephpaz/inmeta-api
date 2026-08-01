@@ -19,11 +19,13 @@ export class CreateEmployeeService {
       throw new DuplicateEmailException(input.email);
     }
 
-    const employee = Employee.create({
+    let employee = Employee.create({
       name: input.name,
       email: input.email,
     });
 
-    return this.employeeRepository.create(employee);
+    employee = await this.employeeRepository.create(employee);
+
+    return employee;
   }
 }
