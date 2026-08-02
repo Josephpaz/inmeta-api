@@ -1,7 +1,7 @@
 export interface EntityMetadata {
   id?: string;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
   deletedAt?: Date | null;
 }
 
