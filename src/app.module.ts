@@ -5,6 +5,7 @@ import { DocumentTypesModule } from './modules/document-types/document-types.mod
 import { DocumentsModule } from './modules/documents/documents.module';
 import { EmployeeDocumentsModule } from './modules/employee-documents/employee-documents.module';
 import { EmployeesModule } from './modules/employees/employees.module';
+import { StatisticsModule } from './modules/statistics/statistics.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
@@ -14,6 +15,7 @@ import { PrismaModule } from './prisma/prisma.module';
     DocumentTypesModule,
     EmployeeDocumentsModule,
     DocumentsModule,
+    StatisticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
