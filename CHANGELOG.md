@@ -1,3 +1,12 @@
+# [1.4.0](https://github.com/Josephpaz/inmeta-api/compare/v1.3.0...v1.4.0) (2026-08-02)
+
+
+### Features
+
+* add most pending document types use case ([077c85e](https://github.com/Josephpaz/inmeta-api/commit/077c85e73cfdb0bc2183242efeffb097d484cada))
+* add statistics recent submissions use case ([0677e26](https://github.com/Josephpaz/inmeta-api/commit/0677e269db64cdcc7805ba5c8e3d229cffe5610f))
+* statistics module & get completion percentage use case ([fb0e63c](https://github.com/Josephpaz/inmeta-api/commit/fb0e63c64a72447328d0908a4318b256f20e13d1))
+
 # [1.3.0](https://github.com/Josephpaz/inmeta-api/compare/v1.2.0...v1.3.0) (2026-08-02)
 
 
