@@ -1,3 +1,11 @@
+# [1.3.0](https://github.com/Josephpaz/inmeta-api/compare/v1.2.0...v1.3.0) (2026-08-02)
+
+
+### Features
+
+* add documents schema, module, domain, respository, interface & add submit document use case; ([b681552](https://github.com/Josephpaz/inmeta-api/commit/b68155246cc5dfe8b572719b258dd719f0cb2b26))
+* add get documents pending use case ([258d166](https://github.com/Josephpaz/inmeta-api/commit/258d166d6c0d99655160aaba21cc8a2c9b5cefad))
+
 # [1.2.0](https://github.com/Josephpaz/inmeta-api/compare/v1.1.0...v1.2.0) (2026-08-02)
 
 
