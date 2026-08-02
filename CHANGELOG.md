@@ -1,3 +1,11 @@
+# [1.2.0](https://github.com/Josephpaz/inmeta-api/compare/v1.1.0...v1.2.0) (2026-08-02)
+
+
+### Features
+
+* add create employee document use case ([3e5168b](https://github.com/Josephpaz/inmeta-api/commit/3e5168bab4e409756583a54a590a01378a2c10b4))
+* add employee document schema, migration, domain & interface ([d0e4743](https://github.com/Josephpaz/inmeta-api/commit/d0e47431970860bff0beb3a629f21b5d21d33f63))
+
 # [1.1.0](https://github.com/Josephpaz/inmeta-api/compare/v1.0.0...v1.1.0) (2026-08-02)
 
 
