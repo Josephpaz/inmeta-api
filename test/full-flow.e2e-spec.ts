@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { createTestApp } from './utils/create-test-app';
+import { disconnectResetClient, resetDatabase } from './utils/reset-database';
 
 interface EntityWithId {
   id: string;
@@ -34,8 +35,13 @@ describe('Full documentation flow (e2e)', () => {
     app = await createTestApp();
   });
 
+  beforeEach(async () => {
+    await resetDatabase();
+  });
+
   afterAll(async () => {
     await app.close();
+    await disconnectResetClient();
   });
 
   it('links a document type, tracks it as pending, then clears it on submission', async () => {
