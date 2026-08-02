@@ -21,6 +21,8 @@ model Employee {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
+  employeeDocuments EmployeeDocument[]
+
   @@map("employees")
 }
 
@@ -31,5 +33,20 @@ model DocumentType {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
+  employeeDocuments EmployeeDocument[]
+
   @@map("document_types")
+}
+
+model EmployeeDocument {
+  id             String   @id @default(cuid())
+  employeeId     String
+  documentTypeId String
+  createdAt      DateTime @default(now())
+
+  employee     Employee     @relation(fields: [employeeId], references: [id])
+  documentType DocumentType @relation(fields: [documentTypeId], references: [id])
+
+  @@unique([employeeId, documentTypeId])
+  @@map("employee_documents")
 }
