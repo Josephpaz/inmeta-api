@@ -1,3 +1,16 @@
+# [1.1.0](https://github.com/Josephpaz/inmeta-api/compare/v1.0.0...v1.1.0) (2026-08-02)
+
+
+### Features
+
+* add create document type use case ([70d2396](https://github.com/Josephpaz/inmeta-api/commit/70d23960482c3e123d1117b6d42224d42578e8ef))
+* add document type model & migration ([917958b](https://github.com/Josephpaz/inmeta-api/commit/917958bed222e6d615ba485ee69a31f2c04acff0))
+* add document types seed ([adda530](https://github.com/Josephpaz/inmeta-api/commit/adda530b6f57dd4159b038846e4774bad2f2299b))
+* add get document type use case ([1fa1928](https://github.com/Josephpaz/inmeta-api/commit/1fa192822648d7302a8f3b011067dc61a1b0d680))
+* add get document types use case ([8a3aa44](https://github.com/Josephpaz/inmeta-api/commit/8a3aa4429294022a2a8bc962cd25028bcc08543b))
+* add soft delete & restore document type use case ([ce635e9](https://github.com/Josephpaz/inmeta-api/commit/ce635e989643f49fed1b425f3440a3034022a8cf))
+* **document-types:** add domain entity, repository interface & repository ([260cd32](https://github.com/Josephpaz/inmeta-api/commit/260cd320bbf61c4c5bca42d9ecbc04e5135758e0))
+
 # 1.0.0 (2026-08-01)
 
 
