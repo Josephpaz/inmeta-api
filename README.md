@@ -1,98 +1,102 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Inmeta API — Gerenciamento de Documentação de Colaboradores
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API RESTful para gerenciar o fluxo de documentação de colaboradores: cadastro de colaboradores e tipos de documento, vinculação de exigências, envio de documentos com versionamento, listagem de pendências e estatísticas gerais.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Stack
 
-## Description
+- **Node.js 22.22.2** + **TypeScript** (strict mode)
+- **NestJS** (Express) — REST API
+- **PostgreSQL** + **Prisma** — persistência e migrations
+- **Jest** + **Supertest** — testes unitários e e2e
+- **Docker Compose** — Postgres local (dev + teste)
+- **class-validator** / **class-transformer** — validação de DTOs
+- **Swagger/OpenAPI** — documentação interativa em `/docs`
+- **Husky** + **lint-staged** + **commitlint** — qualidade e padronização de commits
+- **GitHub Actions** — CI (lint, build, testes) e `semantic-release` (versionamento e changelog automáticos)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Como rodar
 
-## Project setup
+### Pré-requisitos
+- Node 22.22.2 (veja `.nvmrc`)
+- Docker + Docker Compose
+
+### Passos
 
 ```bash
-$ npm install
+nvm use                     # garante a versão correta do Node
+npm install                 # instala dependências (roda `prisma generate` automaticamente)
+cp .env.example .env        # variáveis de ambiente (já vem preenchido com os valores do compose)
+docker compose up -d        # sobe o Postgres (dev + teste)
+npx prisma migrate deploy   # aplica as migrations
+npm run db:seed             # popula com dados de exemplo (15 colaboradores, 8 tipos de documento)
+npm run start:dev           # inicia a API em modo watch
 ```
 
-## Compile and run the project
+A API sobe em `http://localhost:3000`. Documentação interativa (Swagger) em `http://localhost:3000/docs`.
+
+### Testes
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm run test        # unitários (mockam os repositories, não tocam banco)
+npm run test:e2e    # e2e (sobe a app real contra o banco de teste `inmeta_api_test`)
+npm run test:cov    # unitários com cobertura
 ```
 
-## Run tests
+Os testes e2e criam/migram o banco de teste automaticamente (`globalSetup` do Jest) e resetam os dados antes de cada teste — não é preciso nenhum passo manual.
 
-```bash
-# unit tests
-$ npm run test
+## Arquitetura
 
-# e2e tests
-$ npm run test:e2e
+O projeto segue princípios de **DDD** e **Clean Architecture**, organizados por módulo de domínio (`employees`, `document-types`, `employee-documents`, `documents`, `statistics`), cada um dividido em três camadas:
 
-# test coverage
-$ npm run test:cov
+```
+src/modules/<modulo>/
+├── domain/              # entidade rica (invariantes validadas nos setters), exceções de domínio,
+│                         # interface do repository (abstract class = token de DI)
+├── infrastructure/
+│   └── persistence/      # mapper (Prisma <-> domínio) + implementação concreta do repository
+└── use-cases/
+    └── <acao>/           # vertical slice: um controller + um service por operação
+        ├── <acao>.controller.ts
+        ├── <acao>.service.ts
+        └── <acao>.service.spec.ts
 ```
 
-## Deployment
+**Por que vertical slice em vez de um controller único por recurso**: cada use-case fica isolado, com responsabilidade única (uma rota, um motivo pra mudar) — mais alinhado a Clean Architecture (Interactors) e SOLID (SRP) do que um controller genérico com vários métodos.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+**Inversão de dependência**: cada repository é uma `abstract class` (serve de token de DI nativo do Nest, sem precisar de `Symbol` + `@Inject()`). Use-cases dependem só da abstração; o binding concreto (Prisma) acontece no `module`. Isso também facilita trocar a implementação em testes (mock) ou no futuro (outro banco/ORM).
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+**Entidades sempre válidas**: o construtor de cada entidade é privado; a única forma de criar uma é via `create()`, que passa pelos setters (onde as invariantes são validadas). Não existe caminho para uma entidade inválida existir em memória.
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+**Exceções de domínio desacopladas do HTTP**: exceções de negócio estendem `DomainException` (que carrega seu próprio `HttpStatus`), sem depender do NestJS. Um `DomainExceptionFilter` global traduz isso pra resposta HTTP na borda. Casos de "não encontrado"/"removido" usam as exceptions nativas do Nest (`NotFoundException`/`GoneException`) diretamente nos use-cases, já que não são invariantes de domínio.
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Modelagem
 
-## Resources
+- **`Employee`** / **`DocumentType`**: soft delete via `deletedAt`, com endpoints de restore. Listagens/filtros/estatísticas sempre excluem registros removidos.
+- **`EmployeeDocument`**: tabela de junção representando "colaborador X é obrigado a enviar o tipo de documento Y". **Hard delete** na desvinculação — decisão consciente (veja "Decisões e trade-offs").
+- **`Document`**: cada envio é uma **nova linha**, nunca um update. A versão "atual" é derivada (`MAX(version)` pro par colaborador+tipo), não um campo `isActive` armazenado — evita estado redundante que pode dessincronizar. Constraint única `(employeeId, documentTypeId, version)` garante, no banco, que nenhuma versão é atribuída duas vezes, mesmo sob concorrência.
+- **Documento pendente** é um estado **derivado**, não uma tabela própria: existe vínculo (`EmployeeDocument`) sem nenhuma linha correspondente em `Document`.
 
-Check out a few resources that may come in handy when working with NestJS:
+## Atomicidade e concorrência
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- **Criação de colaborador/tipo de documento**: checagem de duplicidade (`findByEmail`/`findByName`) *e* constraint única no banco — cobre a corrida entre o `SELECT` de checagem e o `INSERT` (dois cadastros simultâneos com o mesmo e-mail/nome nunca duplicam; o segundo recebe 409).
+- **Envio de documento**: a versão seguinte é calculada a partir do `MAX(version)` existente; a constraint única `(employeeId, documentTypeId, version)` garante que, se dois reenvios simultâneos calcularem a mesma "próxima versão", apenas um é persistido — o outro recebe 409 (`ConcurrentDocumentSubmissionException`). Validado em teste e2e (`test/concurrency.e2e-spec.ts`) disparando 5 envios simultâneos e verificando que nenhuma versão se repete.
 
-## Support
+## Estatísticas
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Implementadas como **três endpoints separados** (`/statistics/completion-percentage`, `/statistics/most-pending-document-types`, `/statistics/recent-submissions`) em vez de um dashboard único — o desafio deixa esse formato deliberadamente em aberto. A escolha por endpoints atômicos favorece modularidade e testabilidade independente de cada métrica. As consultas mais complexas (pendência, agregação) usam SQL bruto via `$queryRaw` do Prisma, parametrizado (`Prisma.sql`), já que o Prisma não expressa nativamente "registros sem correspondência em outra tabela" (`NOT EXISTS`) através da API fluente.
 
-## Stay in touch
+## CI/CD
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- **CI** (`ci.yml`): roda em PRs e pushes para `main` — sobe um Postgres de serviço, roda lint, build, testes unitários e e2e.
+- **Release** (`release.yml`): roda em push para `main`, após o CI passar (branch protection exige o check `ci` antes de permitir merge). Usa `semantic-release` para calcular a próxima versão a partir dos commits (Conventional Commits, validados via `commitlint` em todo commit local), gerar `CHANGELOG.md`, criar a tag Git e publicar uma Release no GitHub — tudo automático.
 
-## License
+## Decisões e trade-offs conscientes
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- **Soft delete em `EmployeeDocument` (vínculos)**: o requisito de soft delete do desafio cita explicitamente só "colaboradores e documentos". A desvinculação usa **hard delete** — "desvincular" significa "esse par não é mais obrigatório", e o histórico de documentos já enviados fica preservado independentemente em `Document` (que referencia `employeeId`/`documentTypeId` direto, não o vínculo).
+- **Soft delete em `Document`**: não existe um campo `deletedAt` próprio — o mecanismo de versionamento (linha antiga nunca é apagada, só deixa de ser a versão mais recente) já cumpre o requisito de "documento não pode ser removido fisicamente", sem precisar de um segundo mecanismo redundante. Não há operação de "excluir documento enviado" no escopo funcional do desafio.
+- **Só é possível enviar um documento se existir vínculo prévio**: `POST .../documents` retorna 404 se o colaborador não estiver vinculado ao tipo de documento — evita dados sem sentido de negócio (documento enviado que nunca foi exigido).
+- **Sem listagem genérica de documentos**: `GET /employees` e `GET /document-types` (paginados/filtrados) existem por serem necessários pra gerenciar o cadastro na prática, mas **não** há um `GET /documents` genérico — só a listagem de pendentes, que é o único requisito de listagem explícito do desafio.
+- **Sem operação de edição** (`PATCH`/`PUT`) em colaboradores ou tipos de documento — o escopo funcional só pede "cadastro" (criação); editar não foi solicitado.
+- **Testes e2e focados, não exaustivos**: 3 specs cobrindo integração cruzada entre módulos, concorrência real e soft delete refletido em consultas, sem replicar cada endpoint e cada caso de erro que os testes unitários já cobrem isoladamente.
+- **Sem autenticação/autorização** — explicitamente fora do escopo avaliado pelo desafio.
+- **Sem endpoint de health check nem logs estruturados** — diferenciais opcionais não implementados por priorização de tempo; o escopo funcional obrigatório e os requisitos técnicos (versionamento, atomicidade, soft delete) tiveram prioridade.
